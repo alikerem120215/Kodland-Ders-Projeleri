@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doğru Konuş (Speak Right) - Gemini AI Dil Okulu</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <div class="app-background">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- DUOLINGO & GEMINI STYLE TOP BAR -->
+        <header class="duo-header">
+            <div class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div class="brand-title">
+                    <h1>Doğru Konuş</h1>
+                    <span class="badge-gemini"><i class="fa-solid fa-sparkles"></i> GEMINI 2.5 FLASH</span>
+                </div>
+            </div>
+
+            <!-- GAMIFICATION STATS -->
+            <div class="duo-stats">
+                <button class="stat-badge api-key-badge" id="api-key-btn" title="Google Gemini API Key Ayarları">
+                    <i class="fa-solid fa-key"></i>
+                    <span id="api-key-status">API Key</span>
+                </button>
+
+                <div class="stat-badge hearts" title="Kalan Canınız">
+                    <i class="fa-solid fa-heart"></i>
+                    <span id="hearts-count">5</span>
+                </div>
+
+                <div class="stat-badge streak" title="Doğru Cevap Seriniz">
+                    <i class="fa-solid fa-fire-flame-curved"></i>
+                    <span id="streak-count">0</span>
+                </div>
+
+                <div class="xp-bar-container" title="XP İlerlemesi">
+                    <div class="xp-info">
+                        <i class="fa-solid fa-star"></i>
+                        <span id="xp-text">0 XP</span>
+                    </div>
+                    <div class="xp-progress-bg">
+                        <div class="xp-progress-fill" id="xp-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- NAVIGATION & DIFFICULTY / MODE SELECTOR -->
+        <nav class="controls-bar">
+            <div class="diff-selector">
+                <button class="diff-pill active" data-level="kolay">🌱 Kolay</button>
+                <button class="diff-pill" data-level="orta">🔥 Orta</button>
+                <button class="diff-pill" data-level="zor">⚡ Zor</button>
+            </div>
+
+            <div class="mode-selector">
+                <button class="mode-tab active" data-mode="mixed"><i class="fa-solid fa-shuffle"></i> Karışık</button>
+                <button class="mode-tab" data-mode="speak"><i class="fa-solid fa-microphone"></i> Telaffuz</button>
+                <button class="mode-tab" data-mode="write"><i class="fa-solid fa-pen-keyboard"></i> Yazma</button>
+                <button class="mode-tab" data-mode="choice"><i class="fa-solid fa-list-check"></i> Test</button>
+                <button class="mode-tab" data-mode="listen"><i class="fa-solid fa-headphones"></i> Dinleme</button>
+            </div>
+        </nav>
+
+        <!-- MAIN PRACTICE CARD -->
+        <main class="practice-wrapper">
+            <div class="duo-card" id="duo-card">
+                
+                <div class="card-header">
+                    <span class="exercise-type-badge" id="exercise-type-badge">
+                        <i class="fa-solid fa-bullhorn"></i> TELAFFUZ ET
+                    </span>
+                    
+                    <button class="tts-speak-btn" id="tts-btn" title="Kelimeyi Dinle">
+                        <i class="fa-solid fa-volume-high"></i> Kelimeyi Dinle
+                    </button>
+                </div>
+
+                <!-- QUESTION PROMPT -->
+                <div class="question-box">
+                    <p class="prompt-text" id="prompt-text">Bu kelimenin İngilizce karşılığını konuşun:</p>
+                    <h2 class="target-word" id="target-word">Yükleniyor...</h2>
+                </div>
+
+                <!-- 🤖 GOOGLE GEMINI AI DİL KOÇU KARTI -->
+                <div class="gemini-ai-card" id="gemini-ai-card">
+                    <div class="ai-card-header">
+                        <span class="ai-badge"><i class="fa-solid fa-robot"></i> GEMINI AI DİL KOÇU</span>
+                        <button class="ai-speech-btn" id="ai-speak-sentence-btn" title="AI Örnek Cümlesini Dinle">
+                            <i class="fa-solid fa-circle-play"></i> Cümleyi Dinle
+                        </button>
+                    </div>
+
+                    <div class="ai-sentence-box">
+                        <p class="ai-sentence" id="ai-example-sentence">Yükleniyor...</p>
+                        <p class="ai-tr" id="ai-sentence-tr">...</p>
+                    </div>
+
+                    <div class="ai-tip-box" id="ai-tip-box">
+                        <i class="fa-solid fa-lightbulb"></i> <span id="ai-tip-text">Telaffuz ipucu hazırlanıyor...</span>
+                    </div>
+                </div>
+
+                <!-- DYNAMIC EXERCISE CONTAINERS -->
+                
+                <!-- 1. SPEAK MODE -->
+                <div class="exercise-container" id="container-speak">
+                    <div class="waveform-box" id="waveform-box">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+
+                    <div class="mic-button-wrapper">
+                        <div class="pulse-ring"></div>
+                        <div class="pulse-ring ring-2"></div>
+                        <button class="mic-btn" id="mic-btn" title="Konuşmak için bas">
+                            <i class="fa-solid fa-microphone" id="mic-icon"></i>
+                        </button>
+                    </div>
+
+                    <div class="status-box">
+                        <p class="status-text" id="status-text">Mikrofon butonuna basın ve İngilizce konuşun</p>
+                        <div class="timer-badge hidden" id="timer-badge">4s</div>
+                    </div>
+                </div>
+
+                <!-- 2. WRITE MODE -->
+                <div class="exercise-container hidden" id="container-write">
+                    <div class="input-wrapper">
+                        <input type="text" id="type-input" placeholder="İngilizce karşılığını buraya yazın..." autocomplete="off" spellcheck="false">
+                        <button class="submit-type-btn" id="submit-type-btn">
+                            Kontrol Et <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. MULTIPLE CHOICE MODE -->
+                <div class="exercise-container hidden" id="container-choice">
+                    <div class="options-grid" id="options-grid"></div>
+                </div>
+
+                <!-- 4. LISTEN MODE -->
+                <div class="exercise-container hidden" id="container-listen">
+                    <button class="big-listen-btn" id="big-listen-btn">
+                        <i class="fa-solid fa-volume-high"></i> Oynatmak için Tıklayın
+                    </button>
+                    <div class="input-wrapper" style="margin-top: 1.5rem;">
+                        <input type="text" id="listen-input" placeholder="Duyduğunuz İngilizce kelimeyi yazın..." autocomplete="off">
+                        <button class="submit-type-btn" id="submit-listen-btn">
+                            Kontrol Et <i class="fa-solid fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- DUOLINGO BOTTOM ACTION / FEEDBACK BANNER WITH GEMINI AI FEEDBACK -->
+        <div class="bottom-banner hidden" id="bottom-banner">
+            <div class="banner-content">
+                <div class="banner-icon-box" id="banner-icon-box">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <div class="banner-text">
+                    <h3 class="banner-title" id="banner-title">Harika!</h3>
+                    <p class="banner-desc" id="banner-desc">Doğru Cevap</p>
+                    <div class="ai-feedback-badge" id="ai-feedback-badge">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> <span id="ai-feedback-text">AI Koç Notu...</span>
+                    </div>
+                </div>
+            </div>
+            <button class="continue-btn" id="continue-btn">
+                DEVAM ET <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- GAME OVER MODAL OVERLAY -->
+        <div class="modal-overlay hidden" id="gameover-modal">
+            <div class="modal-card">
+                <div class="modal-icon-box wrong">
+                    <i class="fa-solid fa-heart-crack"></i>
+                </div>
+                <h2>Canlarınız Bitti!</h2>
+                <p>Üzülmeyin, Gemini AI ile pratik yaparak daha iyi olabilirsiniz!</p>
+                <div class="modal-stats">
+                    <div class="modal-stat-item">
+                        <span>Kazanılan XP:</span>
+                        <strong id="final-xp">0 XP</strong>
+                    </div>
+                    <div class="modal-stat-item">
+                        <span>En Yüksek Seri:</span>
+                        <strong id="final-streak">0 🔥</strong>
+                    </div>
+                </div>
+                <button class="restart-btn" id="restart-btn">
+                    <i class="fa-solid fa-rotate-right"></i> Canları Yenile & Yeniden Başla
+                </button>
+            </div>
+        </div>
+
+        <!-- GOOGLE GEMINI API KEY MODAL -->
+        <div class="modal-overlay hidden" id="apikey-modal">
+            <div class="modal-card api-key-modal-card">
+                <div class="modal-header-icon">
+                    <i class="fa-solid fa-key"></i>
+                </div>
+                <h2>Gemini API Key Ayarları</h2>
+                <p class="modal-subtitle">Canlı AI Koçluk ve Telaffuz analizleri için Google Gemini API Anahtarınızı girin.</p>
+
+                <div class="key-input-box">
+                    <label for="api-key-input"><i class="fa-solid fa-lock"></i> API Anahtarınız:</label>
+                    <div class="input-with-eye">
+                        <input type="password" id="api-key-input" placeholder="AIzaSy..." autocomplete="off" spellcheck="false">
+                        <button type="button" id="toggle-key-visibility-btn" title="Göster / Gizle">
+                            <i class="fa-solid fa-eye" id="eye-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="modal-alert hidden" id="modal-alert-box">
+                    <i id="modal-alert-icon" class="fa-solid fa-circle-info"></i>
+                    <span id="modal-alert-msg"></span>
+                </div>
+
+                <div class="api-key-info-note">
+                    <i class="fa-solid fa-circle-info"></i> Anahtarınız yalnızca kendi tarayıcınızda saklanır ve canlı isteklerde kullanılır.
+                    <br>
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Google AI Studio'dan Ücretsiz Key Alın
+                    </a>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="action-btn save-btn" id="save-key-btn">
+                        <i class="fa-solid fa-check"></i> Test Et & Kaydet
+                    </button>
+                    <button class="action-btn clear-btn" id="clear-key-btn">
+                        <i class="fa-solid fa-trash-can"></i> Temizle
+                    </button>
+                    <button class="action-btn close-btn" id="close-key-modal-btn">
+                        Kapat
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Main JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
+
