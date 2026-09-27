@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceTrans - Akıllı Sesli Çevirmen</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Style CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="background-glow"></div>
+    <div class="container">
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo">
+                <i class="fa-solid fa-language icon-gradient"></i>
+                <h1>Voice<span>Trans</span></h1>
+            </div>
+            <p class="subtitle">Sesinizi Anında Tanıyın, Yapay Zeka ile İstediğiniz Dile Çevirin</p>
+        </header>
+
+        <!-- Main Card -->
+        <main class="main-card glass-panel">
+
+            <!-- Control Bar -->
+            <div class="control-bar">
+                <div class="lang-selector-group">
+                    <label><i class="fa-solid fa-microphone"></i> Kaynak Dil:</label>
+                    <div class="custom-select">
+                        <select id="sourceLang">
+                            <option value="tr-TR">Türkçe (Türkiye)</option>
+                            <option value="en-US">İngilizce (ABD)</option>
+                            <option value="de-DE">Almanca (Almanya)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="swap-icon">
+                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
+                </div>
+
+                <div class="lang-selector-group">
+                    <label><i class="fa-solid fa-earth-americas"></i> Hedef Dil:</label>
+                    <div class="custom-select">
+                        <select id="targetLang">
+                            <option value="es" selected>🇪🇸 İspanyolca (Español)</option>
+                            <option value="en">🇬🇧 İngilizce (English)</option>
+                            <option value="de">🇩🇪 Almanca (Deutsch)</option>
+                            <option value="fr">🇫🇷 Fransızca (Français)</option>
+                            <option value="it">🇮🇹 İtalyanca (Italiano)</option>
+                            <option value="ru">🇷🇺 Rusça (Русский)</option>
+                            <option value="ja">🇯🇵 Japonca (日本語)</option>
+                            <option value="ar">🇸🇦 Arapça (العربية)</option>
+                            <option value="zh-cn">🇨🇳 Çince (Basitleştirilmiş)</option>
+                            <option value="pt">🇵🇹 Portekizce (Português)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice Recording Area -->
+            <div class="record-section">
+                <div class="visualizer-container" id="visualizer">
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                    <div class="wave-bar"></div>
+                </div>
+
+                <div class="mic-button-wrapper">
+                    <button id="micBtn" class="mic-btn" title="Ses Kaydını Başlat">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <div class="ring-pulse"></div>
+                </div>
+
+                <div id="statusMessage" class="status-message">
+                    Mikrofona tıklayarak konuşmaya başlayın (5 saniye)
+                </div>
+                <div id="timer" class="timer-badge" style="display: none;">00:05</div>
+            </div>
+
+            <!-- Alternative Text Input Section -->
+            <div class="text-input-accordion">
+                <button class="accordion-toggle" id="toggleTextInput">
+                    <span><i class="fa-solid fa-keyboard"></i> Veya Metin Yazın</span>
+                    <i class="fa-solid fa-chevron-down toggle-icon"></i>
+                </button>
+                <div class="text-input-body" id="textInputBody" style="display: none;">
+                    <textarea id="manualText" placeholder="Çevirmek istediğiniz metni buraya yazın..."></textarea>
+                    <button id="translateTextBtn" class="btn btn-primary">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Metni Çevir
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Output Section -->
+            <div class="results-grid">
+                <!-- Original Text Card -->
+                <div class="result-card glass-subpanel">
+                    <div class="card-header">
+                        <span class="badge badge-source"><i class="fa-solid fa-comment-dots"></i> Algılanan Metin</span>
+                        <button class="icon-btn" id="copyOriginalBtn" title="Kopyala">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="card-body" id="originalTextDisplay">
+                        <p class="placeholder-text">Henüz ses kaydı alınmadı...</p>
+                    </div>
+                </div>
+
+                <!-- Translated Text Card -->
+                <div class="result-card glass-subpanel highlight-border">
+                    <div class="card-header">
+                        <span class="badge badge-target" id="targetBadge"><i class="fa-solid fa-language"></i> Çeviri</span>
+                        <div class="actions">
+                            <button class="icon-btn" id="playAudioBtn" title="Sesli Dinle" disabled>
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                            <button class="icon-btn" id="copyTranslatedBtn" title="Kopyala">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body" id="translatedTextDisplay">
+                        <p class="placeholder-text">Çeviri sonucu burada görünecek...</p>
+                    </div>
+                    <!-- Audio Player -->
+                    <audio id="audioPlayer" style="display: none;"></audio>
+                </div>
+            </div>
+
+            <!-- Translation History Section -->
+            <div class="history-section">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Çeviri Geçmişi</h3>
+                <div class="history-list" id="historyList">
+                    <p class="empty-history">Geçmiş çeviri bulunmuyor.</p>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>VoiceTrans &copy; 2026 - Powered by sounddevice, SpeechRecognition, googletrans & gTTS</p>
+        </footer>
+
+    </div>
+
+    <!-- Application JS -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
